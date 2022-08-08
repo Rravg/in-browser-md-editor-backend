@@ -1,8 +1,8 @@
 import app from "./server";
-import "dotenv/config";
+
 import Database from "./db/Database";
 
-async function main() {
+async function main(): Promise<void> {
     const port: number = parseInt(process.env.PORT!) || 8000;
     try {
         StartDatabase();
@@ -15,7 +15,7 @@ async function main() {
     }
 }
 
-function StartDatabase() {
+function StartDatabase(): void {
     Database.getDatabase();
 }
 
