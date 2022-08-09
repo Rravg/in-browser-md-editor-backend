@@ -1,5 +1,4 @@
 import mysql from "mysql2/promise";
-import Bluebird from "bluebird";
 import "dotenv/config";
 import getErrorMessage from "../utils/getErrorMessage";
 
@@ -27,8 +26,7 @@ export default class Database {
             host: process.env.HOST as string,
             user: process.env.USER as string,
             password: process.env.PASSWORD as string,
-            database: "markdown_editor",
-            // Promise: Bluebird,
+            database: process.env.DB_NAME as string,
         });
     }
 
@@ -37,7 +35,7 @@ export default class Database {
     }
 
     private static async StartTables(): Promise<void> {
-        Database.connection.execute(
+        await Database.connection.execute(
             "CREATE TABLE IF NOT EXISTS users (\
                 user_id INT UNSIGNED NOT NULL AUTO_INCREMENT,\
                 username VARCHAR(16) NOT NULL,\
@@ -46,6 +44,18 @@ export default class Database {
                 PRIMARY KEY (user_id),\
                 UNIQUE (username),\
                 UNIQUE (email)\
+            )"
+        );
+
+        await Database.connection.execute(
+            "CREATE TABLE IF NOT EXISTS documents(\
+                document_id INT UNSIGNED NOT NULL AUTO_INCREMENT,\
+                document_name VARCHAR(16) NOT NULL,\
+                document_body VARCHAR(255),\
+                created_at DATE NOT NULL,\
+                user_id INT UNSIGNED NOT NULL,\
+                PRIMARY KEY (document_id),\
+                FOREIGN KEY (user_id) REFERENCES users(user_id)\
             )"
         );
     }

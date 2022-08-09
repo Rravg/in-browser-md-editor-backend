@@ -1,20 +1,17 @@
 import express, { Router } from "express";
 import UserController from "./user.controller";
+import DocumentController from "./document.controller";
 
 const router: Router = express.Router();
 
-router.route("/").get((req, res) => {
-    res.json({ msg: "hola mundo" });
-});
-
-router.route("/login").post((req, res) => {
-    res.json({ msg: "login" });
-});
-
+router.route("/login").post(UserController.Login);
 router.route("/signup").post(UserController.SignUp);
+router.route("/logout").get(UserController.Logout);
 
-router.route("/logout").get((req, res) => {
-    res.json({ msg: "logout" });
-});
+router.route("/").get(DocumentController.GetDocuments);
+router.route("/document").get(DocumentController.GetDocument);
+router.route("/create").post(DocumentController.CreateDocument);
+router.route("/save").put(DocumentController.SaveDocument);
+router.route("/delete").delete(DocumentController.DeleteDocument);
 
 export default router;
