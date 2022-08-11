@@ -13,22 +13,22 @@ export default class UserController {
         const connection = Database.getDatabase().getConnection();
 
         const username: string = req.body.username as string;
-        const email: string = req.body.email as string;
         const password: string = req.body.password as string;
 
-        // console.log(`username: ${username}, email: ${email}, password: ${password}`);
+        // console.log(`username: ${username}, password: ${password}`);
 
         try {
-            await connection.execute(
-                "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-                [username, email, password]
-            );
+            await connection.execute("INSERT INTO users (username, password) VALUES (?, ?)", [
+                username,
+                password,
+            ]);
 
-            res.json({ msg: "sign up" });
+            console.log("sign up successfull");
+            res.json({ isAuth: true });
         } catch (error) {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
-            res.status(500).json({ error: message });
+            res.status(400).json({ error: message });
         }
     }
 
@@ -64,14 +64,16 @@ export default class UserController {
                 // save session
                 req.session.save();
 
-                res.json({ msg: "login successful" });
+                console.log("login successfull");
+                res.json({ isAuth: true });
             } else {
-                res.json({ msg: "incorrect password" });
+                console.log("incorrect password");
+                res.json({ isAuth: false });
             }
         } catch (error) {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
-            res.status(500).json({ error: message });
+            res.status(400).json({ error: message, isAuth: false });
         }
     }
 
@@ -86,6 +88,7 @@ export default class UserController {
             });
         });
 
+        console.log("user logout");
         res.json({ msg: "logout" });
     }
 }
