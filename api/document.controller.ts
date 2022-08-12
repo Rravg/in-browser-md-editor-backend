@@ -14,7 +14,7 @@ export default class DocumentController {
         try {
             const [result, fields] = await connection.execute(
                 "SELECT user_id FROM users WHERE username = ?",
-                [req.session.user]
+                [req.query.user]
             );
             const user_id: number = (<RowDataPacket[]>result)[0].user_id;
 
@@ -82,13 +82,13 @@ export default class DocumentController {
 
     static async GetDocuments(req: Request, res: Response, next: NextFunction) {
         const connection = Database.getDatabase().getConnection();
-
         try {
             const [result, fields] = await connection.execute(
                 "SELECT user_id FROM users WHERE username = ?",
-                [req.session.user]
+                [req.query.user]
             );
             const user_id: number = (<RowDataPacket[]>result)[0].user_id;
+            // console.log("user_id found ", user_id);
 
             const [documents, dFields] = await connection.execute(
                 "SELECT document_name, created_at FROM documents WHERE user_id = ?",

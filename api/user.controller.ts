@@ -8,6 +8,12 @@ interface User {
     password: string;
 }
 
+const welcome = {
+    name: "welcome.md",
+    content:
+        "# Welcome to Markdown\n\nMarkdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents.\n\n## How to use this?\n\n1. Write markdown in the markdown editor window\n2. See the rendered markdown in the preview window\n\n### Features\n\n- Create headings, paragraphs, links, blockquotes, inline-code, code blocks, and lists\n- Name and save the document to access again later\n- Choose between Light or Dark mode depending on your preference\n\n> This is an example of a blockquote. If you would like to learn more about markdown syntax, you can visit this [markdown cheatsheet](https://www.markdownguide.org/cheat-sheet/).\n\n#### Headings\n\nTo create a heading, add the hash sign (#) before the heading. The number of number signs you use should correspond to the heading level. You'll see in this guide that we've used all six heading levels (not necessarily in the correct way you should use headings!) to illustrate how they should look.\n\n##### Lists\n\nYou can see examples of ordered and unordered lists above.\n\n###### Code Blocks\n\nThis markdown editor allows for inline-code snippets, like this: `<p>I'm inline</p>`. It also allows for larger code blocks like this:\n\n```\n<main>\n  <h1>This is a larger code block</h1>\n</main>\n```",
+};
+
 export default class UserController {
     static async SignUp(req: Request, res: Response, next: NextFunction) {
         const connection = Database.getDatabase().getConnection();
@@ -15,15 +21,23 @@ export default class UserController {
         const username: string = req.body.username as string;
         const password: string = req.body.password as string;
 
-        // console.log(`username: ${username}, password: ${password}`);
-
         try {
             await connection.execute("INSERT INTO users (username, password) VALUES (?, ?)", [
                 username,
                 password,
             ]);
 
-            console.log("sign up successfull");
+            const [result, fields] = await connection.execute(
+                "SELECT user_id FROM users WHERE username = ?",
+                [username]
+            );
+            const user_id: number = (<RowDataPacket[]>result)[0].user_id;
+
+            await connection.execute(
+                "INSERT INTO documents (document_name, document_body, created_at, user_id) VALUES (?, ?, ?, ?)",
+                [welcome.name, welcome.content, req.query.date, user_id]
+            );
+
             res.json({ isAuth: true });
         } catch (error) {
             let message: string = getErrorMessage(error);
@@ -38,8 +52,6 @@ export default class UserController {
         const username: string = req.body.username as string;
         const password: string = req.body.password as string;
 
-        // console.log(`username: ${username}, password: ${password}`);
-
         try {
             const [result, fields] = await connection.execute(
                 "SELECT username, password FROM users WHERE username = ?",
@@ -53,21 +65,8 @@ export default class UserController {
             };
 
             if (password === user.password) {
-                // regenerate session
-                req.session.regenerate(function (err) {
-                    if (err) next(err);
-                });
-
-                // store user information in user
-                req.session.user = user.username;
-
-                // save session
-                req.session.save();
-
-                console.log("login successfull");
                 res.json({ isAuth: true });
             } else {
-                console.log("incorrect password");
                 res.json({ isAuth: false });
             }
         } catch (error) {
@@ -78,17 +77,6 @@ export default class UserController {
     }
 
     static async Logout(req: Request, res: Response, next: NextFunction) {
-        // clear user from session
-        req.session.user = null;
-        req.session.save(function (err) {
-            if (err) next(err);
-
-            req.session.regenerate(function (err) {
-                if (err) next(err);
-            });
-        });
-
-        console.log("user logout");
         res.json({ msg: "logout" });
     }
 }

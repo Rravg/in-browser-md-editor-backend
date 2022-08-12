@@ -49,8 +49,8 @@ export default class Database {
             "CREATE TABLE IF NOT EXISTS documents(\
                 document_id INT UNSIGNED NOT NULL AUTO_INCREMENT,\
                 document_name VARCHAR(16) NOT NULL,\
-                document_body VARCHAR(255),\
-                created_at DATE NOT NULL,\
+                document_body TEXT,\
+                created_at VARCHAR(16) NOT NULL,\
                 user_id INT UNSIGNED NOT NULL,\
                 PRIMARY KEY (document_id),\
                 FOREIGN KEY (user_id) REFERENCES users(user_id)\
