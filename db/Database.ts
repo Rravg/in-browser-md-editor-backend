@@ -48,7 +48,7 @@ export default class Database {
         await Database.connection.execute(
             "CREATE TABLE IF NOT EXISTS documents(\
                 document_id INT UNSIGNED NOT NULL AUTO_INCREMENT,\
-                document_name VARCHAR(16) NOT NULL,\
+                document_name VARCHAR(32) NOT NULL,\
                 document_body TEXT,\
                 created_at VARCHAR(16) NOT NULL,\
                 user_id INT UNSIGNED NOT NULL,\

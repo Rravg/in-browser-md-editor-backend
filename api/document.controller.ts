@@ -7,20 +7,38 @@ export default class DocumentController {
     static async CreateDocument(req: Request, res: Response, next: NextFunction) {
         const connection = Database.getDatabase().getConnection();
 
-        const name: string = req.body.name as string;
-        const body: string = req.body.body as string;
         const date: string = req.body.date as string;
 
         try {
+            async function createUntitledDocument(num: number = 0): Promise<string> {
+                let document_name: string = "untitled-document.md";
+
+                let name_found = false;
+                while (!name_found) {
+                    const QUERY = "EXISTS (SELECT * FROM documents WHERE document_name = ?)";
+                    let [check, check_fields] = await connection.execute(`SELECT ${QUERY}`, [
+                        document_name,
+                    ]);
+                    const exists: number = (<RowDataPacket[]>check)[0][QUERY];
+                    if (exists === 1) {
+                        num = num + 1;
+                        document_name = `untitled-document.md(${num})`;
+                    } else {
+                        name_found = true;
+                    }
+                }
+
+                return document_name;
+            }
+            let new_document_name = await createUntitledDocument();
             const [result, fields] = await connection.execute(
                 "SELECT user_id FROM users WHERE username = ?",
                 [req.query.user]
             );
             const user_id: number = (<RowDataPacket[]>result)[0].user_id;
-
             await connection.execute(
                 "INSERT INTO documents (document_name, document_body, created_at, user_id) VALUES (?, ?, ?, ?)",
-                [name, body, date, user_id]
+                [new_document_name, "", date, user_id]
             );
 
             res.json("New Document Created");
@@ -59,17 +77,17 @@ export default class DocumentController {
 
     static async DeleteDocument(req: Request, res: Response, next: NextFunction) {
         const connection = Database.getDatabase().getConnection();
-        const document_id: number = req.body.document_id as number;
+        const document_name: string = req.query.document_name as string;
         try {
             const [result, fields] = await connection.execute(
                 "SELECT user_id FROM users WHERE username = ?",
-                [req.session.user]
+                [req.query.user]
             );
             const user_id: number = (<RowDataPacket[]>result)[0].user_id;
 
             await connection.execute(
-                "DELETE FROM documents WHERE user_id = ? AND document_id = ?",
-                [user_id, document_id]
+                "DELETE FROM documents WHERE user_id = ? AND document_name = ?",
+                [user_id, document_name]
             );
 
             res.json("Delete Document");
