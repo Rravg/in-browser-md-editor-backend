@@ -11,7 +11,7 @@ export default class DocumentController {
 
         try {
             async function createUntitledDocument(num: number = 0): Promise<string> {
-                let document_name: string = "untitled-document.md";
+                let document_name: string = "untitled-document";
 
                 let name_found = false;
                 while (!name_found) {
@@ -22,7 +22,7 @@ export default class DocumentController {
                     const exists: number = (<RowDataPacket[]>check)[0][QUERY];
                     if (exists === 1) {
                         num = num + 1;
-                        document_name = `untitled-document.md(${num})`;
+                        document_name = `untitled-document(${num})`;
                     } else {
                         name_found = true;
                     }
@@ -52,20 +52,20 @@ export default class DocumentController {
     static async SaveDocument(req: Request, res: Response, next: NextFunction) {
         const connection = Database.getDatabase().getConnection();
 
-        const name: string = req.body.name as string;
-        const body: string = req.body.body as string;
-        const document_id: number = req.body.document_id as number;
+        const new_name: string = req.query.new_document_name as string;
+        const old_name: string = req.query.old_document_name as string;
+        const body: string = req.body.source as string;
 
         try {
             const [result, fields] = await connection.execute(
                 "SELECT user_id FROM users WHERE username = ?",
-                [req.session.user]
+                [req.query.user]
             );
             const user_id: number = (<RowDataPacket[]>result)[0].user_id;
 
             await connection.execute(
-                "UPDATE documents SET document_name = ?, document_body = ? WHERE user_id = ? AND document_id = ?",
-                [name, body, user_id, document_id]
+                "UPDATE documents SET document_name = ?, document_body = ? WHERE user_id = ? AND document_name = ?",
+                [new_name, body, user_id, old_name]
             );
             res.json("Save Document");
         } catch (error) {
@@ -124,18 +124,16 @@ export default class DocumentController {
 
     static async GetDocument(req: Request, res: Response, next: NextFunction) {
         const connection = Database.getDatabase().getConnection();
-        const document_id: number = req.body.document_id as number;
-
+        const document_name: string = req.query.document_name as string;
         try {
             const [result, fields] = await connection.execute(
                 "SELECT user_id FROM users WHERE username = ?",
-                [req.session.user]
+                [req.query.user]
             );
             const user_id: number = (<RowDataPacket[]>result)[0].user_id;
-
             const [document, dFields] = await connection.execute(
-                "SELECT document_name, document_body FROM documents WHERE user_id = ? AND document_id = ?",
-                [user_id, document_id]
+                "SELECT document_name, document_body FROM documents WHERE user_id = ? AND document_name = ?",
+                [user_id, document_name]
             );
 
             const user_document = (<RowDataPacket[]>document)[0];
