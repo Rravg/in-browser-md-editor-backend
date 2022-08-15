@@ -39,7 +39,7 @@ export default class Database {
             "CREATE TABLE IF NOT EXISTS users (\
                 user_id INT UNSIGNED NOT NULL AUTO_INCREMENT,\
                 username VARCHAR(16) NOT NULL,\
-                password VARCHAR(32) NOT NULL,\
+                password VARCHAR(128) NOT NULL,\
                 PRIMARY KEY (user_id),\
                 UNIQUE (username)\
             )"

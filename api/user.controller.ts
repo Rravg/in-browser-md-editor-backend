@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { RowDataPacket } from "mysql2";
 import Database from "../db/Database";
 import getErrorMessage from "../utils/getErrorMessage";
+import bcrypt from "bcryptjs";
 
 interface User {
     username: string;
@@ -22,9 +23,11 @@ export default class UserController {
         const password: string = req.body.password as string;
 
         try {
+            let salt = bcrypt.genSaltSync(10);
+            let hash = bcrypt.hashSync(password, salt);
             await connection.execute("INSERT INTO users (username, password) VALUES (?, ?)", [
                 username,
-                password,
+                hash,
             ]);
 
             const [result, fields] = await connection.execute(
@@ -64,7 +67,7 @@ export default class UserController {
                 password: row.password,
             };
 
-            if (password === user.password) {
+            if (bcrypt.compareSync(password, user.password)) {
                 res.json({ isAuth: true });
             } else {
                 res.json({ isAuth: false });
