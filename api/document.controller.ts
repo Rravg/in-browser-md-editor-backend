@@ -5,7 +5,7 @@ import getErrorMessage from "../utils/getErrorMessage";
 
 export default class DocumentController {
     static async CreateDocument(req: Request, res: Response, next: NextFunction) {
-        const connection = Database.getDatabase().getConnection();
+        const connection = Database.getDatabase().getConnection().promise();
 
         const date: string = req.body.date as string;
 
@@ -46,13 +46,11 @@ export default class DocumentController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(500).json({ error: message });
-        } finally {
-            await connection.end();
         }
     }
 
     static async SaveDocument(req: Request, res: Response, next: NextFunction) {
-        const connection = Database.getDatabase().getConnection();
+        const connection = Database.getDatabase().getConnection().promise();
 
         const new_name: string = req.query.new_document_name as string;
         const old_name: string = req.query.old_document_name as string;
@@ -74,13 +72,11 @@ export default class DocumentController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(500).json({ error: message });
-        } finally {
-            await connection.end();
         }
     }
 
     static async DeleteDocument(req: Request, res: Response, next: NextFunction) {
-        const connection = Database.getDatabase().getConnection();
+        const connection = Database.getDatabase().getConnection().promise();
         const document_name: string = req.query.document_name as string;
         try {
             const [result, fields] = await connection.execute(
@@ -99,13 +95,11 @@ export default class DocumentController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(500).json({ error: message });
-        } finally {
-            await connection.end();
         }
     }
 
     static async GetDocuments(req: Request, res: Response, next: NextFunction) {
-        const connection = Database.getDatabase().getConnection();
+        const connection = Database.getDatabase().getConnection().promise();
         try {
             const [result, fields] = await connection.execute(
                 "SELECT user_id FROM users WHERE username = ?",
@@ -125,13 +119,11 @@ export default class DocumentController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(500).json({ error: message });
-        } finally {
-            await connection.end();
         }
     }
 
     static async GetDocument(req: Request, res: Response, next: NextFunction) {
-        const connection = Database.getDatabase().getConnection();
+        const connection = Database.getDatabase().getConnection().promise();
         const document_name: string = req.query.document_name as string;
         try {
             const [result, fields] = await connection.execute(
@@ -150,8 +142,6 @@ export default class DocumentController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(500).json({ error: message });
-        } finally {
-            await connection.end();
         }
     }
 }

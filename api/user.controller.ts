@@ -17,7 +17,7 @@ const welcome = {
 
 export default class UserController {
     static async SignUp(req: Request, res: Response, next: NextFunction) {
-        const connection = Database.getDatabase().getConnection();
+        const connection = Database.getDatabase().getConnection().promise();
 
         const username: string = req.body.username as string;
         const password: string = req.body.password as string;
@@ -46,13 +46,11 @@ export default class UserController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(400).json({ error: message });
-        } finally {
-            await connection.end();
         }
     }
 
     static async Login(req: Request, res: Response, next: NextFunction) {
-        const connection = Database.getDatabase().getConnection();
+        const connection = Database.getDatabase().getConnection().promise();
 
         const username: string = req.body.username as string;
         const password: string = req.body.password as string;
@@ -78,8 +76,6 @@ export default class UserController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(400).json({ error: message, isAuth: false });
-        } finally {
-            await connection.end();
         }
     }
 
