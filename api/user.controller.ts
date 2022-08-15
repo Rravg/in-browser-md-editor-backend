@@ -46,6 +46,8 @@ export default class UserController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(400).json({ error: message });
+        } finally {
+            await connection.end();
         }
     }
 
@@ -76,6 +78,8 @@ export default class UserController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(400).json({ error: message, isAuth: false });
+        } finally {
+            await connection.end();
         }
     }
 

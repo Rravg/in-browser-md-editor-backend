@@ -56,6 +56,8 @@ export default class Database {
                 FOREIGN KEY (user_id) REFERENCES users(user_id)\
             )"
         );
+
+        Database.connection.end();
     }
 
     public static getDatabase(): Database {

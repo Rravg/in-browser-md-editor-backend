@@ -46,6 +46,8 @@ export default class DocumentController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(500).json({ error: message });
+        } finally {
+            await connection.end();
         }
     }
 
@@ -72,6 +74,8 @@ export default class DocumentController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(500).json({ error: message });
+        } finally {
+            await connection.end();
         }
     }
 
@@ -95,6 +99,8 @@ export default class DocumentController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(500).json({ error: message });
+        } finally {
+            await connection.end();
         }
     }
 
@@ -119,6 +125,8 @@ export default class DocumentController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(500).json({ error: message });
+        } finally {
+            await connection.end();
         }
     }
 
@@ -142,6 +150,8 @@ export default class DocumentController {
             let message: string = getErrorMessage(error);
             console.error("Database error ", message);
             res.status(500).json({ error: message });
+        } finally {
+            await connection.end();
         }
     }
 }
