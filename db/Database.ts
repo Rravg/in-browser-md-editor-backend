@@ -23,14 +23,15 @@ export default class Database {
 
     private static async CreateConnection(): Promise<void> {
         Database.connection = mysql.createPool({
-            host: process.env.HOST as string,
-            user: process.env.USER as string,
-            password: process.env.PASSWORD as string,
-            database: process.env.DB_NAME as string,
+            host: process.env.MYSQLHOST as string,
+            user: process.env.MYSQLUSER as string,
+            password: process.env.MYSQLPASSWORD as string,
+            database: process.env.MYSQLDATABASE as string,
+            port: parseInt(process.env.MYSQLPORT!) as number,
             waitForConnections: true,
             connectionLimit: 10,
             queueLimit: 0,
-            connectTimeout: 2000
+            connectTimeout: 2000,
         });
     }
 
